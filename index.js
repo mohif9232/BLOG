@@ -1,6 +1,6 @@
 
 let express = require("express")
-const { route } = require("./route")
+const  route  = require("./route")
 
 let app = express()
 app.use(express.json())
