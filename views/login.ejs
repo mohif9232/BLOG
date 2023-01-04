@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <div class="login">
+        <form action="/api/v1/login" method="post" id="form4">
+            <span>Enter Your registered Email_id : </span>
+            <input type="email_id" placeholder="Enter your email here" name="email_id">
+            <span>Enter password : </span>
+            <input type="password" placeholder="Enter your password here" name="password">
+            <button type="login" form="form4" value="login">Login</button>
+            <a href= "send_mail.ejs"> Verify </a>
+            
+        </form>
+    </div>
+</body>
+</html>

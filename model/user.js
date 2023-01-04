@@ -26,6 +26,7 @@ function registerJoi(param) {
 }
 
 async function RegisterUser(param){
+    console.log(param)
     let check = registerJoi(param)
     if(!check || check.error){
         return { status:406 , error:check.error}
@@ -51,6 +52,7 @@ async function RegisterUser(param){
     return { status : 200 , data : "Registered successfully please validate your self"}
 
 }
+
 async function vericationMailJoi(param) {
     let schema = joi.object({
         email_id: joi.string().email().max(30).min(5).required(),
@@ -83,16 +85,26 @@ async function SendMail(param){
         return { status : 200 , error: "You are already verified"}
     }
     let code =  otp.generate(6,{digits: true})
+    
+    let update= await User.update({otp:code},{where:{id:find.id}}).catch((err)=>{
+        return { error: err}
+    })
+    if(!update || update.error){
+        return { status : 500 , error:"Internal Server Error"}
+    }
     let mailoption = {
         from: "mohif.waghu@somaiya.edu",
         to: find.email_id,
         subject: "verification mail",
         text: "Please use this varification code: "  +code
     }
-    transporter.sendMail(mailoption,(error,info)=>{
-        if(error){
-            return {status:501 , error:error.message}
-        }})
+    
+    let mail = await transporter.sendMail(mailoption).catch((err)=>{
+        return { error: err}
+    })
+    if(!mail || mail.error){
+        return { status : 406 , error:"Please enter valid email id"}
+    }
     return {status:200, data:`varification mail send to your email id:${param.email_id}`}
 
 }
@@ -126,7 +138,7 @@ function verifyJoi(param) {
     if(!find || find.error){
         return { status:406 , error:"Cant find this email_id"}
     }
-    if(find.is_varified != param.verification_code){
+    if(find.otp != param.verification_code){
         return { status: 406 , error: "Verification code is incorrect"}
     }
     let update= await User.update({is_varified:true , otp:""},{where:{id:find.id}}).catch((err)=>{

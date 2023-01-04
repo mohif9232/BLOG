@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify_Email</title>
+</head>
+<body>
+    <h1>Verify_Email</h1>
+    <div class="verify_email">
+        <form action="/api/v1/verify_email" method="post" id="form3">
+            <span>Enter Your registered Email_id : </span>
+            <input type="email_id" placeholder="Enter your email here" name="email_id">
+            <span>Enter verification Token : </span>
+            <input type="verification_code" placeholder="Enter your code here" name="verification_code">
+            <button type="verify" form="form3" value="verify">Verify</button>
+        </form>
+    </div>
+</body>
+</html>
