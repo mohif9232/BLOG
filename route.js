@@ -1,6 +1,6 @@
 let express = require("express");
 let app = express()
-let { register, mail, verify, login, forget } = require("./controller/user")
+let { register, mail, verify, login, forget, reset } = require("./controller/user")
 
 
 app.post("/api/v1/register", register)
@@ -8,6 +8,8 @@ app.post("/api/v1/send_mail", mail)
 app.post("/api/v1/verify_email", verify)
 app.post("/api/v1/login", login)
 app.post("/api/v1/forget_password", forget)
+app.post("/api/v1/reset_password", reset)
+
 
 
 app.get("/api/v1/register", (request, response) => {

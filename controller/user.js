@@ -1,4 +1,4 @@
-let { RegisterUser, SendMail, verifyEmail, loginUser, forgetPassword } = require("../model/user")
+let { RegisterUser, SendMail, verifyEmail, loginUser, forgetPassword, resetPassword } = require("../model/user")
 
 async function register(request, response) {
     let done = await RegisterUser(request.body).catch((err) => {
@@ -50,10 +50,22 @@ async function forget(request, response) {
     return response.status(done.status).send(done.data)
 }
 
+async function reset(request, response) {
+    let done = await resetPassword(request.body).catch((err) => {
+        return { error: err }
+    })
+    console.log(done)
+    if (!done || done.error) {
+        return response.status(done.status).send(done.error)
+    }
+    return response.status(done.status).send(done.data)
+}
+
 module.exports = {
     register,
     mail,
     verify,
     login,
-    forget
+    forget,
+    reset
 }

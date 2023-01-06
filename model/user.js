@@ -7,6 +7,9 @@ const { ref } = require("joi");
 let jwt = require("jsonwebtoken")
 let { joiValidation } = require("../helper.js/joi")
 
+
+//Basic features
+
 function registerJoi(param) {
     let schema = joi.object({
         name: joi.string().max(30).min(2).required(),
@@ -186,7 +189,7 @@ async function loginUser(param) {
         return { error: err }
     })
     if (!compare || compare.error) {
-        return { status: 500, error: "Internal server error" }
+        return { status: 406, error: "username & password is not valid" }
     }
     let assign_token = jwt.sign(find.id, "mohif9232")
     if (!assign_token) {
@@ -229,7 +232,6 @@ async function forgetPassword(param) {
     let sendMail = await transporter.sendMail(mailoption).catch((err) => {
         return { error: err }
     })
-    console.log(sendMail)
     if (sendMail.rejected && sendMail.rejected.length > 0) {
         return { status: 203, error: "Please provide valid email id" }
     }
@@ -240,6 +242,37 @@ async function forgetPassword(param) {
 }
 
 async function resetPassword(param) {
-    let check = await joiValidation({})
+    let check = await joiValidation({
+        verification_code: joi.string().max(5).min(5).required(),
+        new_password: joi.string().min(5).max(15).required()
+    }).catch((err) => {
+        return { error: err }
+    })
+    if (!check || check.error) {
+        return { status: 406, error: check.error }
+    }
+    let find = await User.findOne({ where: { otp: param.verification_code }, raw: true }).catch((err) => {
+        return { error: err }
+    })
+    if (!find || (find && find.error)) {
+        return { status: 406, error: "Verification code is not valid" }
+    }
+    let reset = await User.update({ password: await bcrypt.hash(param.new_password, 10) }, {
+        where: {
+            id: find.id
+        }
+    }).catch((err) => {
+        return { error: err }
+    })
+    if (!reset || reset.error) {
+        return { status: 500, error: "Internal Server Error" }
+    }
+    let empty = await User.update({ otp: "" }, { where: { id: find.id } }).catch((err) => {
+        return { error: err }
+    })
+    if (!empty || (empty && empty.error)) {
+        return { status: 500, error: "Internal Server Error" }
+    }
+    return { status: 200, data: " Your password reset successfullyy... You can login now" }
 }
-module.exports = { RegisterUser, SendMail, verifyEmail, loginUser, forgetPassword }
+module.exports = { RegisterUser, SendMail, verifyEmail, loginUser, forgetPassword, resetPassword }
