@@ -17,6 +17,10 @@ Role_Permission.init({
     permission_id: {
         type: DataTypes.INTEGER,
         allowNull: false
+    },
+    createdBy: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     }
 }, {
     modelName: "Role",
@@ -25,4 +29,4 @@ Role_Permission.init({
 })
 
 
-module.exports = { User_Role }
+module.exports = { Role_Permission }

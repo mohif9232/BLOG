@@ -15,7 +15,7 @@ function auth(permission) {
             }
         }
 
-        let user = await sequelize.query(`SELECT user.name, permission.permission as permission FROM user LEFT JOIN user_permission ON user.id = user_permission.user_id LEFT JOIN permission ON  user_permission.permission_id = permission.id WHERE user.id=:key`, {
+        let user = await sequelize.query(`SELECT user.name , role.roles , permission.permission FROM user LEFT JOIN user_role ON user_role.user_id = user.id LEFT JOIN role ON role.id = user_role.role_id LEFT JOIN role_permission ON role_permission.role_id = role.id LEFT JOIN permission ON permission.id = role_permission.permission_id WHERE user.id =:key`, {
             replacements: { key: verify.id },
             type: QueryTypes.SELECT
         }).catch((err) => {

@@ -5,7 +5,11 @@ let otp = require("otp-generator");
 let bcrypt = require("bcrypt");
 const { ref } = require("joi");
 let jwt = require("jsonwebtoken")
-let { joiValidation } = require("../helper.js/joi")
+let { joiValidation } = require("../helper.js/joi");
+const { User_Role } = require("../schema/user_role");
+const { Role } = require("../schema/role");
+const { Permission, Op } = require("../schema/permission");
+const { Role_Permission } = require("../schema/role_permission");
 
 
 //Basic features
@@ -49,9 +53,17 @@ async function RegisterUser(param) {
     }).catch((err) => {
         return { error: err }
     })
-    console.log(add)
     if (!add || add.error) {
         return { status: 500, error: "Please try again later" }
+    }
+    let assign_role = await User_Role.create({
+        user_id: add.id,
+        role_id: 1
+    }).catch((err) => {
+        return { error: err }
+    })
+    if (!assign_role || assign_role.error) {
+        return { status: 500, Error: "Internal Server Error" }
     }
     return { status: 200, data: "Registered successfully please validate your self" }
 
@@ -274,5 +286,52 @@ async function resetPassword(param) {
         return { status: 500, error: "Internal Server Error" }
     }
     return { status: 200, data: " Your password reset successfullyy... You can login now" }
+}
+
+
+
+async function create_role(param, userData) {
+    let check = await joiValidation({
+        role_name: joi.string().min(1).required(),
+        permission_id: joi.array().items(joi.number().min(1).required()).required()
+    }).catch((err) => {
+        return { error: err }
+    })
+    if (!check || check.error) {
+        return { status: 406, error: check.error }
+    }
+    let find = await Role.findOne({ where: { roles: param.role_name } }).catch((err) => {
+        return { error: err }
+    })
+    if (find) {
+        return { status: 406, error: "This role is already exist" }
+    }
+    let check_permission = await Permission.findAll({ where: { id: { [Op.in]: param.permission_id } }, raw: true }).catch((err) => {
+        return { error: err }
+    })
+    let arr = param.permission_id
+    if (check_permission.length != arr.length) {
+        return { status: 406, error: "Please provide proper Permission Id" }
+    }
+    let add_role = await Role.create({
+        roles: param.role_name,
+        createdBy: userData.id
+    }).catch((err) => {
+        return { error: err }
+    })
+    if (!add_role || add_role.error) {
+        return { status: 500, error: "Internal Server Error" }
+    }
+    let data = [];
+    for (let a of param.permission_id) {
+        data.push({ role_id: add_role.id, permission_id: a, createdBy: userData.id })
+    }
+    let add_permission = await Role_Permission.bulkCreate(data).catch((err) => {
+        return { error: err }
+    })
+    if (!add_permission || add_permission.error) {
+        return { status: 500, error: "Internal Server Error" }
+    }
+    return { status: 200, data: "Role Created Successfullyy" }
 }
 module.exports = { RegisterUser, SendMail, verifyEmail, loginUser, forgetPassword, resetPassword }

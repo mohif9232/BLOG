@@ -1,28 +1,26 @@
-let { sequelize, DataTypes, Model } = require("../init/dbconfig")
+let { sequelize, DataTypes, Model, Op } = require("../init/dbconfig")
 
-class Role extends Model { }
+class Permission extends Model { }
 
 
-Role.init({
+Permission.init({
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false
     },
-    roles: {
+    permission: {
         type: DataTypes.STRING,
-        allowNull: false
-    },
-    createdBy: {
-        type: DataTypes.INTEGER,
         allowNull: false
     }
 }, {
     modelName: "Role",
     tableName: "role",
-    sequelize
+    sequelize,
+    createdAt: false,
+    updatedAt: false
 })
 
 
-module.exports = { Role }
+module.exports = { Permission, Op }
